@@ -5,11 +5,15 @@ namespace VantagePoint.Domain.Core;
 
 public class DomainEventCollection
     : IEnumerable<DomainEvent> {
-    private Queue<DomainEvent> _events;
+    private readonly AggregateRoot _owner;
+    private readonly Queue<DomainEvent> _events;
 
-    public DomainEventCollection() {
+    public DomainEventCollection(AggregateRoot owner) {
+        _owner = owner;
         _events = new();
     }
+
+    public AggregateRoot Owner => _owner;
 
     public void Publish(DomainEvent domainEvent) {
         _events.Enqueue(domainEvent);
