@@ -14,4 +14,6 @@ public abstract class AggregateRoot
         : base(id) {
         _events = new();
     }
+
+    protected DomainEventCollection Events => _events;
 }
