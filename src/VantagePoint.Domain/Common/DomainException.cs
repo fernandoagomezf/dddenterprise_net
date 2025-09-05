@@ -1,6 +1,6 @@
 using System;
 
-namespace VantagePoint.Domain.Core;
+namespace VantagePoint.Domain.Common;
 
 public class DomainException
     : Exception {
