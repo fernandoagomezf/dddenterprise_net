@@ -1,52 +1,99 @@
 using System;
+using System.Buffers;
 using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
 public class Employee
-    : IAggregateRoot {
-    private readonly Guid _id;
+    : AggregateRoot {
     private PersonName _name;
-    private PhoneNumber? _phoneNumber;
     private Employee? _manager;
+    private PhoneNumber? _phoneNumber;
+    private Address? _address;
+    private Email? _email;
+    private string _position;
+    private string _department;
+    private DateTime? _birthDate;
+    private DateTime? _hiredDate;
 
-    public Employee(PersonName name) {
-        _id = Guid.NewGuid();
-        _name = name;
-        _phoneNumber = null;
-        _manager = null;
-    }
-
-    public Employee(Guid id, PersonName name) {
-        if (id == Guid.Empty) {
-            throw new ArgumentException("The employee");
-        }
+    public Employee(PersonName name)
+        : base() {
         ArgumentNullException.ThrowIfNull(name);
-
         _name = name;
-        _phoneNumber = null;
         _manager = null;
+        _phoneNumber = null;
+        _address = null;
+        _email = null;
+        _position = String.Empty;
+        _department = String.Empty;
+        _birthDate = null;
+        _hiredDate = null;
     }
 
-    public Guid Id => _id;
     public PersonName Name => _name;
     public PhoneNumber? PhoneNumber => _phoneNumber;
     public Employee? Manager => _manager;
+    public Address? Address => _address;
+    public Email? Email => _email;
+    public string Position => _position;
+    public string Department => _department;
+    public DateTime? BirthDate => _birthDate;
+    public DateTime? HiredDate => _hiredDate;
 
-    Guid IEntity.Id => _id;
+    public void UpdatePersonalInfo(PersonName name, DateTime birthDate) {
+        ArgumentNullException.ThrowIfNull(name);
+        if (birthDate > DateTime.Now.AddYears(-16)) {
+            throw new ArgumentException("The birth date is invalid, too young.");
+        }
 
-    bool IEquatable<IEntity>.Equals(IEntity? other) {
-        if (other is null) return false;
-        return _id == other.Id;
+        var updated = false;
+        if (_name != name) {
+            _name = name;
+            updated = true;
+        }
+        if (_birthDate != birthDate) {
+            _birthDate = birthDate;
+            updated = true;
+        }
+
+        if (updated) {
+            Publish(EmployeeEvents.Updated);
+        }
     }
 
-    public override bool Equals(object? obj) {
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj is IEntity entity)
-            return ((IEquatable<IEntity>)this).Equals(entity);
-        return false;
+    public void UpdateContactInfo(Address? address, Email? email, PhoneNumber? phoneNumber) {
+        var updated = false;
+        address ??= _address;
+        email ??= _email;
+        phoneNumber ??= _phoneNumber;
+
+        if (_address != address) {
+            _address = address;
+            updated = true;
+        }
+        if (_email != email) {
+            _email = email;
+            updated = true;
+        }
+        if (_phoneNumber != phoneNumber) {
+            _phoneNumber = phoneNumber;
+            updated = true;
+        }
+
+        if (updated) {
+            Publish(EmployeeEvents.Updated);
+        }
     }
 
-    public override int GetHashCode()
-        => _id.GetHashCode();
+    public void Promote(Employee manager, string newPosition) {
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentException.ThrowIfNullOrWhiteSpace(newPosition);
+
+        _manager = manager;
+        _department = manager.Department;
+        _position = newPosition;
+        if (!_hiredDate.HasValue) {
+            _hiredDate = DateTime.Now;
+        }
+    }
 }
