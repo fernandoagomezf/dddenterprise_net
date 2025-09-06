@@ -1,4 +1,4 @@
 
 namespace VantagePoint.Domain.Common;
 
-public record ValueObject();
+public abstract record ValueObject();
