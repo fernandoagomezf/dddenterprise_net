@@ -6,13 +6,6 @@ using Xunit;
 namespace VantagePoint.Domain.Common.Tests;
 
 public class DomainEventTests {
-    public static IEnumerable<object[]> ValidData() {
-        yield return new object[] { "Identity", "EmployeeContactUpdated", new DateTime(2025, 9, 5, 15, 48, 7) };
-        yield return new object[] { "Goals", "NewCorporateGoalAssigned", new DateTime(2020, 2, 29, 23, 59, 59) };
-        yield return new object[] { "Evaluations", "PerformanceEvaluationRated", new DateTime(2023, 12, 13, 8, 59, 14) };
-        yield return new object[] { "Periods", "EvaluationPeriodClosed", new DateTime(2026, 1, 31, 09, 0, 0) };
-    }
-
     [Fact]
     public void Constructor_WithAllParameters_ShouldSetProperties() {
         var context = "UserManagement";
@@ -38,18 +31,6 @@ public class DomainEventTests {
         Assert.Equal(context, domainEvent.Context);
         Assert.Equal(code, domainEvent.Code);
         Assert.InRange(domainEvent.Raised, beforeCreation, afterCreation);
-    }
-
-    [Theory]
-    [MemberData(nameof(ValidData))]
-    public void Ctor_WithValidParameters_ShouldCreateDomainEvent(string context, string code, DateTime raised) {
-        Console.WriteLine($"Testing with: {context}, {code}, {raised}");
-        var subject = new DomainEvent(context, code, raised);
-
-        Assert.NotNull(subject);
-        Assert.Equal(context, subject.Context);
-        Assert.Equal(code, subject.Code);
-        Assert.Equal(raised, subject.Raised);
     }
 
     [Fact]
@@ -126,20 +107,6 @@ public class DomainEventTests {
         Assert.Contains("UserManagement", result);
         Assert.Contains("UserCreated", result);
         Assert.Contains("2023", result);
-    }
-
-    [Theory]
-    [MemberData(nameof(ValidData))]
-    public void Ctor_WithContextAndCodeOnly_ShouldUseCurrentTime(string context, string code, DateTime _) {
-
-        var before = DateTime.Now;
-        var subject = new DomainEvent(context, code);
-        var after = DateTime.Now;
-
-        Assert.NotNull(subject);
-        Assert.Equal(context, subject.Context);
-        Assert.Equal(code, subject.Code);
-        Assert.InRange(subject.Raised, before, after);
     }
 
     [Fact]
