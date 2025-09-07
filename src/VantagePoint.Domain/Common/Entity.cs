@@ -14,7 +14,7 @@ public abstract class Entity
         _id = id;
     }
 
-    Guid IEntity.Id => throw new NotImplementedException();
+    Guid IEntity.Id => _id;
 
     bool IEquatable<IEntity>.Equals(IEntity? other) {
         if (other is null) return false;

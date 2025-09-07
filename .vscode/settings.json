@@ -1,4 +1,6 @@
 {
   "dotnet.defaultSolution": "VantagePoint.sln",
-  "dotnet.automaticWorkspaceInit": true
+  "dotnet.automaticWorkspaceInit": true, 
+  "cmake.enabled": false,
+  "ctest.enabled": false
 }

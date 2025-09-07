@@ -7,12 +7,17 @@ namespace VantagePoint.Domain.Identity;
 public record Email
     : ValueObject {
     private static readonly Regex _regex;
+    public static readonly Email Empty;
+    public string Value { get; init; }
 
     static Email() {
         _regex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
+        Empty = new();
     }
 
-    public string Value { get; init; }
+    private Email() {
+        Value = String.Empty;
+    }
 
     public Email(string value) {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
