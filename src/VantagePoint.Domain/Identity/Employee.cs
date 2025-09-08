@@ -7,31 +7,27 @@ public class Employee
     : AggregateRoot {
     private PersonName _name;
     private EmployeeStatus _status;
-    private Employee? _manager;
+    private Manager? _manager;
     private PhoneNumber _phoneNumber;
     private Address _address;
     private Email _email;
     private string _position;
     private string _department;
-    private DateTime _birthDate;
+    private DateTime? _birthDate;
     private DateTime? _hiredDate;
-    private EmployeeCollection _teamMembers;
+    private readonly TeamMemberCollection _teamMembers;
 
-    public Employee(PersonName name, DateTime birthDate)
+    public Employee(PersonName name)
         : base() {
         ArgumentNullException.ThrowIfNull(name);
-        if (birthDate > DateTime.Now.AddYears(-18)) {
-            throw new ArgumentException("Employee must be at least 18 years old.", nameof(birthDate));
-        }
         _name = name;
         _manager = null;
         _phoneNumber = PhoneNumber.Empty;
-        _birthDate = birthDate;
+        _birthDate = null;
         _address = Address.Empty;
         _email = Email.Empty;
         _position = String.Empty;
         _department = String.Empty;
-        _birthDate = birthDate;
         _hiredDate = new();
         _teamMembers = new();
         _status = EmployeeStatus.Inactive;
@@ -45,23 +41,35 @@ public class Employee
             ArgumentNullException.ThrowIfNull(value);
             if (_name != value) {
                 _name = value;
-                Publish(EmployeeEvents.Updated);
+                Publish(EmployeeEvents.InfoUpdated);
             }
         }
     }
 
-    public Employee? Manager => _manager;
+    public Manager? Manager => _manager;
     public string Department => _department;
     public string Position => _position;
+    public ITeamMembers TeamMembers => _teamMembers;
 
-    public DateTime BirthDate {
+    public DateTime? BirthDate {
         get => _birthDate;
         set {
-            if (value > DateTime.Now.AddYears(-16)) {
-                throw new ArgumentException("The birth date is invalid, too young.");
+            if (value > DateTime.Now.AddYears(-18)) {
+                throw new ArgumentException("Employee must be at least 18 years old.", nameof(value));
             }
             _birthDate = value;
-            Publish(EmployeeEvents.Updated);
+            Publish(EmployeeEvents.InfoUpdated);
+        }
+    }
+
+    public DateTime? HiredDate {
+        get => _hiredDate;
+        set {
+            if (value.HasValue && value > DateTime.Now) {
+                throw new ArgumentException("Hired date cannot be in the future.", nameof(value));
+            }
+            _hiredDate = value;
+            Publish(EmployeeEvents.InfoUpdated);
         }
     }
 
@@ -70,7 +78,7 @@ public class Employee
         set {
             if (_address != value) {
                 _address = value;
-                Publish(EmployeeEvents.Updated);
+                Publish(EmployeeEvents.InfoUpdated);
             }
         }
     }
@@ -80,7 +88,7 @@ public class Employee
         set {
             if (_email != value) {
                 _email = value;
-                Publish(EmployeeEvents.Updated);
+                Publish(EmployeeEvents.InfoUpdated);
             }
         }
     }
@@ -90,56 +98,38 @@ public class Employee
         set {
             if (_phoneNumber != value) {
                 _phoneNumber = value;
-                Publish(EmployeeEvents.Updated);
+                Publish(EmployeeEvents.InfoUpdated);
             }
         }
     }
 
-    public Team GetColleagues() {
-        if (_manager == null) {
-            throw new InvalidOperationException("The employee does not have a manager assigned.");
-        }
-
-        var members = new EmployeeCollection(new[] { this });
-        return new Team(_manager, members);
-    }
-
-    public Team GetTeam() {
-        var members = new EmployeeCollection(_teamMembers);
-        return new Team(this, members);
-    }
-
-    public void AssignToTeam(Employee manager, string position) {
+    public void AssignManager(Manager manager) {
         ArgumentNullException.ThrowIfNull(manager);
-        ArgumentException.ThrowIfNullOrWhiteSpace(position);
-
-        if (_manager != null) {
-            _manager._teamMembers.Remove(this);
-            Publish(EmployeeEvents.TeamMemberRemoved);
+        if (_manager != manager) {
+            _manager = manager;
+            Publish(EmployeeEvents.ManagerAssigned);
         }
-
-        _manager = manager;
-        _department = manager.Department;
-        _position = position;
-        _manager._teamMembers.Add(this);
-        _manager.Publish(EmployeeEvents.TeamMemberAssigned);
-        Publish(EmployeeEvents.AssignedToTeam);
-        Publish(EmployeeEvents.Updated);
     }
 
-    public void TransferTeamTo(Employee newManager) {
-        ArgumentNullException.ThrowIfNull(newManager);
-        if (_manager == null) {
-            throw new DomainException("Employee does not have a manager to transfer from.");
+    public void AssignTeamMember(TeamMember member) {
+        ArgumentNullException.ThrowIfNull(member);
+        if (member.Id == Id) {
+            throw new DomainException("Employee cannot be their own team member");
         }
-        if (_manager == newManager) {
-            throw new DomainException("New manager is the same as the current manager.");
+        if (_teamMembers.Contains(member.Id)) {
+            throw new DomainException("Employee is already a team member");
         }
 
-        foreach (Employee member in _teamMembers) {
-            member.AssignToTeam(newManager, member.Position);
+        _teamMembers.Add(member);
+        Publish(EmployeeEvents.TeamMemberAssigned);
+    }
+
+    public void RemoveTeamMember(TeamMember member) {
+        ArgumentNullException.ThrowIfNull(member);
+        if (!_teamMembers.Contains(member.Id)) {
+            throw new DomainException("Employee is not a team member");
         }
-        _teamMembers.Clear();
+        _teamMembers.Remove(member.Id);
         Publish(EmployeeEvents.TeamMemberRemoved);
     }
 
@@ -151,7 +141,6 @@ public class Employee
         if (!_hiredDate.HasValue) {
             _hiredDate = DateTime.Now;
         }
-        Publish(EmployeeEvents.Updated);
         Publish(EmployeeEvents.StatusChanged);
     }
 
@@ -163,7 +152,6 @@ public class Employee
             throw new DomainException("Cannot deactivate an employee who is managing a team.");
         }
         _status = EmployeeStatus.Inactive;
-        Publish(EmployeeEvents.Updated);
         Publish(EmployeeEvents.StatusChanged);
     }
 
@@ -175,7 +163,6 @@ public class Employee
             throw new DomainException("Cannot terminate an active employee who is managing a team. Transfer the team and try again.");
         }
         _status = EmployeeStatus.Terminated;
-        Publish(EmployeeEvents.Updated);
         Publish(EmployeeEvents.StatusChanged);
     }
 
