@@ -21,4 +21,12 @@ public sealed record Address
             Country = string.Empty
         };
     }
+
+    public void Deconstruct(out string street, out string city, out string state, out string postalCode, out string country) {
+        street = Street;
+        city = City;
+        state = State;
+        postalCode = PostalCode;
+        country = Country;
+    }
 }

@@ -64,5 +64,19 @@ public class PersonNameTests {
         Assert.Equal("Gómez", modified.LastName);
         Assert.NotEqual(original, modified);
     }
+
+    [Fact]
+    public void Deconstruct_ReturnsFirstAndLastName() {
+        // Arrange
+        var person = new PersonName("Fernando Arturo", "Gómez Flores");
+
+        // Act
+        var (first, last) = person;
+
+        // Assert
+        Assert.Equal(person.FirstName, first);
+        Assert.Equal(person.LastName, last);
+    }
+
 }
 

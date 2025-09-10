@@ -62,5 +62,20 @@ public class PhoneNumberTests {
         Assert.Equal("101", modified.Extension);
         Assert.NotEqual(original, modified);
     }
+
+    [Fact]
+    public void Deconstruct_ReturnsComponentValues() {
+        // Arrange
+        var phone = new PhoneNumber("1234567890", "+52", "101");
+
+        // Act
+        var (mainNumber, countryCode, extension) = phone;
+
+        // Assert
+        Assert.Equal(phone.MainNumber, mainNumber);
+        Assert.Equal(phone.CountryCode, countryCode);
+        Assert.Equal(phone.Extension, extension);
+    }
+
 }
 

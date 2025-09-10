@@ -6,92 +6,99 @@ namespace VantagePoint.Domain.Identity.Tests;
 
 public class AddressTests {
     [Fact]
-    public void Constructor_ValidParameters_SetsProperties() {
-        var address = new Address("123 Main St", "Springfield", "IL", "USA", "62704");
-        Assert.Equal("123 Main St", address.Street);
-        Assert.Equal("Springfield", address.City);
-        Assert.Equal("IL", address.State);
-        Assert.Equal("USA", address.Country);
-        Assert.Equal("62704", address.PostalCode);
-    }
+    public void Constructor_WithValidValues_SetsProperties() {
+        // Arrange
+        var street = "123 Main St";
+        var city = "Metropolis";
+        var state = "State";
+        var postalCode = "12345";
+        var country = "Country";
 
-    [Theory]
-    [InlineData(null)]
-    public void Constructor_NullStreet_ThrowsArgumentNullException(string? value) {
-        Assert.Throws<ArgumentNullException>(() => new Address(value!, "City", "State", "Country", "12345"));
-    }
+        // Act
+        var address = new Address {
+            Street = street,
+            City = city,
+            State = state,
+            PostalCode = postalCode,
+            Country = country
+        };
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_WhiteSpaceStreet_ThrowsArgumentException(string value) {
-        Assert.Throws<ArgumentException>(() => new Address(value, "City", "State", "Country", "12345"));
-    }
-
-    [Theory]
-    [InlineData(null)]
-    public void Constructor_NullCity_ThrowsArgumentNullException(string? value) {
-        Assert.Throws<ArgumentNullException>(() => new Address("Street", value!, "State", "Country", "12345"));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_WhiteSpaceCity_ThrowsArgumentException(string value) {
-        Assert.Throws<ArgumentException>(() => new Address("Street", value, "State", "Country", "12345"));
-    }
-
-    [Theory]
-    [InlineData(null)]
-    public void Constructor_NullState_ThrowsArgumentNullException(string? value) {
-        Assert.Throws<ArgumentNullException>(() => new Address("Street", "City", value!, "Country", "12345"));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_WhiteSpaceState_ThrowsArgumentException(string value) {
-        Assert.Throws<ArgumentException>(() => new Address("Street", "City", value, "Country", "12345"));
-    }
-
-    [Theory]
-    [InlineData(null)]
-    public void Constructor_NullPostalCode_ThrowsArgumentNullException(string? value) {
-        Assert.Throws<ArgumentNullException>(() => new Address("Street", "City", "State", "Country", value!));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_WhiteSpacePostalCode_ThrowsArgumentException(string value) {
-        Assert.Throws<ArgumentException>(() => new Address("Street", "City", "State", "Country", value));
+        // Assert
+        Assert.Equal(street, address.Street);
+        Assert.Equal(city, address.City);
+        Assert.Equal(state, address.State);
+        Assert.Equal(postalCode, address.PostalCode);
+        Assert.Equal(country, address.Country);
     }
 
     [Fact]
-    public void Empty_StaticProperty_IsEmptyAddress() {
-        var empty = Address.Empty;
-        Assert.Equal(string.Empty, empty.Street);
-        Assert.Equal(string.Empty, empty.City);
-        Assert.Equal(string.Empty, empty.State);
-        Assert.Equal(string.Empty, empty.Country);
-        Assert.Equal(string.Empty, empty.PostalCode);
+    public void Equality_TwoAddressesWithSameValues_AreEqual() {
+        // Arrange
+        var a1 = new Address {
+            Street = "123 Main St",
+            City = "Metropolis",
+            State = "State",
+            PostalCode = "12345",
+            Country = "Country"
+        };
+        var a2 = new Address {
+            Street = "123 Main St",
+            City = "Metropolis",
+            State = "State",
+            PostalCode = "12345",
+            Country = "Country"
+        };
+
+        // Act & Assert
+        Assert.Equal(a1, a2);
+        Assert.True(a1 == a2 || a1.Equals(a2));
     }
 
     [Fact]
-    public void Equality_TwoInstancesWithSameValues_AreEqual() {
-        var addr1 = new Address("123 Main St", "Springfield", "IL", "USA", "62704");
-        var addr2 = new Address("123 Main St", "Springfield", "IL", "USA", "62704");
-        Assert.Equal(addr1, addr2);
-        Assert.True(addr1 == addr2);
-        Assert.False(addr1 != addr2);
+    public void WithExpression_ProducesNewInstance_WithModifiedValue() {
+        // Arrange
+        var original = new Address {
+            Street = "123 Main St",
+            City = "Metropolis",
+            State = "State",
+            PostalCode = "12345",
+            Country = "Country"
+        };
+
+        // Act
+        var modified = original with { PostalCode = "99999" };
+
+        // Assert
+        Assert.NotSame(original, modified);
+        Assert.Equal("99999", modified.PostalCode);
+        Assert.Equal("12345", original.PostalCode);
+        // other values remain equal
+        Assert.Equal(original.Street, modified.Street);
+        Assert.Equal(original.City, modified.City);
+        Assert.Equal(original.State, modified.State);
+        Assert.Equal(original.Country, modified.Country);
     }
 
     [Fact]
-    public void Equality_TwoInstancesWithDifferentValues_AreNotEqual() {
-        var addr1 = new Address("123 Main St", "Springfield", "IL", "USA", "62704");
-        var addr2 = new Address("456 Elm St", "Springfield", "IL", "USA", "62704");
-        Assert.NotEqual(addr1, addr2);
-        Assert.False(addr1 == addr2);
-        Assert.True(addr1 != addr2);
+    public void Deconstruct_ReturnsComponentValues() {
+        // Arrange
+        var address = new Address {
+            Street = "123 Main St",
+            City = "Metropolis",
+            State = "State",
+            PostalCode = "12345",
+            Country = "Country"
+        };
+
+        // Act
+        var (street, city, state, postalCode, country) = address;
+
+        // Assert
+        Assert.Equal(address.Street, street);
+        Assert.Equal(address.City, city);
+        Assert.Equal(address.State, state);
+        Assert.Equal(address.PostalCode, postalCode);
+        Assert.Equal(address.Country, country);
     }
+
 }

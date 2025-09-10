@@ -29,6 +29,22 @@ public sealed record PhoneNumber
 
     }
 
+    /// <summary>
+    /// Deconstructs the phone number into main number, country code and extension.
+    /// </summary>
+    /// <param name="mainNumber">The main phone number.</param>
+    /// <param name="countryCode">The country code.</param>
+    /// <param name="extension">The extension.</param>
+    public void Deconstruct(out string mainNumber, out string countryCode, out string extension) {
+        ArgumentNullException.ThrowIfNull(MainNumber);
+        ArgumentNullException.ThrowIfNull(CountryCode);
+        ArgumentNullException.ThrowIfNull(Extension);
+
+        mainNumber = MainNumber;
+        countryCode = CountryCode;
+        extension = Extension;
+    }
+
     static PhoneNumber() {
         Empty = new();
     }

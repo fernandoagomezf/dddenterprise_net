@@ -9,6 +9,8 @@ public sealed record DomainEvent
     public DateTime Raised { get; init; }
 
     public DomainEvent(string context, string code, DateTime raised) {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(code);
         if (String.IsNullOrWhiteSpace(context)) {
             throw new ArgumentException("The domain event context must be provided.", nameof(context));
         }
