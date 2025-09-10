@@ -4,7 +4,7 @@ using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
-public record PhoneNumber
+public sealed record PhoneNumber
     : ValueObject {
     public static readonly PhoneNumber Empty;
     public string CountryCode { get; init; }

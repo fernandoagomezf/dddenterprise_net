@@ -4,7 +4,7 @@ using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
-public record Email
+public sealed record Email
     : ValueObject {
     private static readonly Regex _regex;
     public static readonly Email Empty;
