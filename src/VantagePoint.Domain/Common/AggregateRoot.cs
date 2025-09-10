@@ -1,24 +1,23 @@
 
 using System;
-using System.Collections.Generic;
 
 namespace VantagePoint.Domain.Common;
 
 public abstract class AggregateRoot
-    : Entity, IAggregateRoot {
+    : Entity {
     private readonly DomainEventCollection _events;
+
     protected AggregateRoot()
-        : base(Guid.NewGuid()) {
-        _events = new();
+        : base(Identifier.New()) {
+        _events = new(Context);
     }
 
-    protected AggregateRoot(Guid id)
-        : base(id) {
-        _events = new();
+    protected string Context {
+        get {
+            var ns = GetType()?.Namespace ?? String.Empty;
+            return ns.Split('.')[^1] ?? String.Empty;
+        }
     }
 
-    protected void Publish(DomainEvent domainEvent) {
-        ArgumentNullException.ThrowIfNull(domainEvent);
-        _events.Add(domainEvent);
-    }
+    protected DomainEventCollection Events => _events;
 }

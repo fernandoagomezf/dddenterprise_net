@@ -2,15 +2,19 @@ using System;
 
 namespace VantagePoint.Domain.Common;
 
-public record DomainEvent
+public sealed record DomainEvent
     : ValueObject {
     public string Context { get; init; }
     public string Code { get; init; }
     public DateTime Raised { get; init; }
 
     public DomainEvent(string context, string code, DateTime raised) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(context);
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        if (String.IsNullOrWhiteSpace(context)) {
+            throw new ArgumentException("The domain event context must be provided.", nameof(context));
+        }
+        if (String.IsNullOrWhiteSpace(code)) {
+            throw new ArgumentException("The domain event code must be provided.", nameof(code));
+        }
         Context = context;
         Code = code;
         Raised = raised;
@@ -19,5 +23,11 @@ public record DomainEvent
     public DomainEvent(string context, string code)
         : this(context, code, DateTime.Now) {
 
+    }
+
+    public void Deconstruct(out string context, out string code, out DateTime raised) {
+        context = Context;
+        code = Code;
+        raised = Raised;
     }
 }

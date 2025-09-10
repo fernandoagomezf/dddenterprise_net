@@ -1,50 +1,63 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VantagePoint.Domain.Common;
 
 public class Entities<T>
-    : IEntities<T>
-    where T : IEntity {
-    private readonly Dictionary<Guid, T> _items;
+    : IEnumerable<T>, IReadOnlyCollection<T> where T : Entity {
+    private readonly AggregateRoot _root;
+    private readonly List<T> _items;
 
-    protected Entities() {
+    public Entities(AggregateRoot root) {
+        ArgumentNullException.ThrowIfNull(root);
+        _root = root;
         _items = new();
     }
 
-    protected Entities(IEnumerable<T> entities) {
-        ArgumentNullException.ThrowIfNull(entities);
-        _items = new();
-        foreach (var entity in entities) {
-            _items[entity.Id] = entity;
-        }
+    public Entities(AggregateRoot root, IEnumerable<T> items)
+        : this(root) {
+        ArgumentNullException.ThrowIfNull(items);
+        _items = [.. items];
     }
 
-    protected Dictionary<Guid, T> Items => _items;
-
-    public virtual T Get(Guid id) {
-        if (!_items.TryGetValue(id, out var entity)) {
-            throw new KeyNotFoundException($"The entity with ID '{id}' was not found.");
-        }
-        return entity;
-    }
-
-    public virtual T? Find(Guid id) {
-        _items.TryGetValue(id, out var entity);
-        return entity;
-    }
-
-    public IEnumerator<T> GetEnumerator()
-        => _items.Values.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator()
-        => _items.Values.GetEnumerator();
-
-    IEnumerator<IEntity> IEnumerable<IEntity>.GetEnumerator() {
-        throw new NotImplementedException();
-    }
-
+    public AggregateRoot Root => _root;
     public int Count => _items.Count;
+    public bool IsReadOnly => true;
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() {
+        return _items.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+        return _items.GetEnumerator();
+    }
+
+    public bool Contains(T item) {
+        ArgumentNullException.ThrowIfNull(item);
+        return _items.Contains(item);
+    }
+
+    public bool Contains(Identifier id) {
+        ArgumentNullException.ThrowIfNull(id);
+        return _items.Where(x => x.Id == id)
+            .Any();
+    }
+
+    public T Get(Identifier id) {
+        ArgumentNullException.ThrowIfNull(id);
+        var item = _items.Where(x => x.Id == id)
+            .FirstOrDefault();
+        if (item is null) {
+            throw new KeyNotFoundException($"Entity with ID {id} not found.");
+        }
+        return item;
+    }
+
+    public T? Find(Identifier id) {
+        ArgumentNullException.ThrowIfNull(id);
+        return _items.Where(x => x.Id == id)
+            .FirstOrDefault();
+    }
 }
