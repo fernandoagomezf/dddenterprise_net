@@ -9,9 +9,7 @@ public abstract class AggregateRoot
 
     protected AggregateRoot()
         : base(Identifier.New()) {
-        var ns = GetType()?.Namespace ?? String.Empty;
-        ns = ns.Split('.')[^1] ?? String.Empty;
-        _events = new(ns);
+        _events = new();
     }
 
     protected DomainEventCollection Events => _events;
