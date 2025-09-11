@@ -2,5 +2,6 @@
   "dotnet.defaultSolution": "VantagePoint.sln",
   "dotnet.automaticWorkspaceInit": true, 
   "cmake.enabled": false,
-  "ctest.enabled": false
+  "ctest.enabled": false,
+  "github.copilot.inlineSuggest.enable": false
 }
