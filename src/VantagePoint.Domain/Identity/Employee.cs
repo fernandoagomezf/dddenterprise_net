@@ -1,42 +1,42 @@
 using System;
-using System.Collections.Generic;
 using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
 public class Employee
-    : AggregateRoot {
+    : AggregateRoot, IPerson {
     private PersonName _name;
-    private EmployeeStatus _status;
-    private Manager _manager;
+    private Status _status;
     private PhoneNumber _phoneNumber;
     private Address _address;
     private Email _email;
     private JobInformation _jobInfo;
-    private DateTime? _birthDate;
+    private DateTime _birthDate;
+    private EmployeeCollection _directReports;
 
-    public Employee(Manager manager, PersonName name)
+    public Employee(PersonName name, DateTime birthDate)
         : base() {
-        ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(name);
         _name = name;
-        _manager = manager;
+        _birthDate = birthDate;
         _phoneNumber = PhoneNumber.Empty;
-        _birthDate = null;
         _address = Address.Empty;
         _email = Email.Empty;
         _jobInfo = JobInformation.Empty;
-        _status = EmployeeStatus.Inactive;
+        _status = Status.Inactive;
+        _directReports = new EmployeeCollection(this);
     }
 
-    public EmployeeStatus Status => _status;
-    public Manager Manager => _manager;
-    public Entities<TeamMember> TeamMembers => Entities.AsEntities<TeamMember>();
+    public Status Status => _status;
     public PersonName Name => _name;
     public JobInformation JobInformation => _jobInfo;
     public Address Address => _address;
     public Email Email => _email;
     public PhoneNumber PhoneNumber => _phoneNumber;
+    public Employees DirectReports => new Employees(_directReports);
+
+    public EmployeeInfo GetInfo()
+        => new EmployeeInfo(Id, Name, Status);
 
     public void UpdatePersonalInfo(PersonName name, DateTime birthDate) {
         ArgumentNullException.ThrowIfNull(name);
@@ -70,63 +70,57 @@ public class Employee
         }
     }
 
-    public void AssignManager(Manager manager) {
-        ArgumentNullException.ThrowIfNull(manager);
-        if (!Manager.Equals(manager)) {
-            _manager = manager;
-            Events.AddEvent(EmployeeEvents.ManagerAssigned);
-        }
-    }
-
-    public void AssignTeamMember(TeamMember member) {
-        ArgumentNullException.ThrowIfNull(member);
-        if (member.Id == Id) {
-            throw new DomainException("Employee cannot be their own team member");
-        }
-        if (Entities.Contains(member.Id)) {
-            throw new DomainException("Employee is already a team member");
-        }
-
-        Entities.Add(member);
-        Events.AddEvent(EmployeeEvents.TeamMemberAssigned);
-    }
-
-    public void RemoveTeamMember(TeamMember member) {
-        ArgumentNullException.ThrowIfNull(member);
-        if (!Entities.Contains(member)) {
-            throw new DomainException("Employee is not a team member");
-        }
-        Entities.Remove(member);
-        Events.AddEvent(EmployeeEvents.TeamMemberRemoved);
-    }
-
     public void Activate() {
-        if (_status != EmployeeStatus.Inactive) {
+        if (_status != Status.Inactive) {
             throw new DomainException("Employee must be inactive to activate.");
         }
-        _status = EmployeeStatus.Active;
+        _status = Status.Active;
         Events.AddEvent(EmployeeEvents.StatusChanged);
     }
 
     public void Deactivate() {
-        if (_status != EmployeeStatus.Active) {
+        if (_status != Status.Active) {
             throw new DomainException("Employee must be active to deactivate.");
         }
-        if (TeamMembers.Count > 0) {
-            throw new DomainException("Cannot deactivate an employee who is managing a team.");
-        }
-        _status = EmployeeStatus.Inactive;
+        _status = Status.Inactive;
         Events.AddEvent(EmployeeEvents.StatusChanged);
     }
 
     public void Terminate() {
-        if (_status == EmployeeStatus.Terminated) {
+        if (_status == Status.Terminated) {
             throw new DomainException("Employee is already terminated.");
         }
-        if (_status == EmployeeStatus.Active && TeamMembers.Count > 0) {
+        if (_status == Status.Active) {
             throw new DomainException("Cannot terminate an active employee who is managing a team. Transfer the team and try again.");
         }
-        _status = EmployeeStatus.Terminated;
+        _status = Status.Terminated;
         Events.AddEvent(EmployeeEvents.StatusChanged);
+    }
+
+    public void AssignDirectReport(EmployeeInfo directReport) {
+        ArgumentNullException.ThrowIfNull(directReport);
+        if (directReport.Status != Status.Active) {
+            throw new DomainException("Direct report must be active.");
+        }
+        if (Status != Status.Active) {
+            throw new DomainException("Only active employees can have direct reports.");
+        }
+        if (directReport.Id == Id) {
+            throw new DomainException("Employee cannot report to themselves.");
+        }
+        if (_directReports.Contains(directReport.Id)) {
+            throw new DomainException("This employee is already a direct report.");
+        }
+        _directReports.Add(directReport);
+        //Events.AddEvent(EmployeeEvents.DirectReportAdded);
+    }
+
+    public void DeassignDirectReport(EmployeeInfo directReport) {
+        ArgumentNullException.ThrowIfNull(directReport);
+        if (!_directReports.Contains(directReport.Id)) {
+            throw new DomainException("This employee is not a direct report.");
+        }
+        _directReports.Remove(directReport);
+        //Events.AddEvent(EmployeeEvents.DirectReportRemoved);
     }
 }
