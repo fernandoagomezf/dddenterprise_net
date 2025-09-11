@@ -46,7 +46,7 @@ public class Employee
         if (_name != name || _birthDate != birthDate) {
             _name = name;
             _birthDate = birthDate;
-            Events.AddEvent(EmployeeEvents.InfoUpdated);
+            Events.AddEvent(new InformationUpdatedEvent(Id));
         }
     }
 
@@ -54,7 +54,7 @@ public class Employee
         ArgumentNullException.ThrowIfNull(jobInfo);
         if (_jobInfo != jobInfo) {
             _jobInfo = jobInfo;
-            Events.AddEvent(EmployeeEvents.InfoUpdated);
+            Events.AddEvent(new InformationUpdatedEvent(Id));
         }
     }
 
@@ -66,7 +66,7 @@ public class Employee
             _phoneNumber = phoneNumber;
             _address = address;
             _email = email;
-            Events.AddEvent(EmployeeEvents.InfoUpdated);
+            Events.AddEvent(new InformationUpdatedEvent(Id));
         }
     }
 
@@ -75,7 +75,7 @@ public class Employee
             throw new DomainException("Employee must be inactive to activate.");
         }
         _status = Status.Active;
-        Events.AddEvent(EmployeeEvents.StatusChanged);
+        Events.AddEvent(new StatusChangedEvent(Id, Status.Inactive, Status.Active));
     }
 
     public void Deactivate() {
@@ -83,18 +83,15 @@ public class Employee
             throw new DomainException("Employee must be active to deactivate.");
         }
         _status = Status.Inactive;
-        Events.AddEvent(EmployeeEvents.StatusChanged);
+        Events.AddEvent(new StatusChangedEvent(Id, Status.Active, Status.Inactive));
     }
 
     public void Terminate() {
         if (_status == Status.Terminated) {
             throw new DomainException("Employee is already terminated.");
         }
-        if (_status == Status.Active) {
-            throw new DomainException("Cannot terminate an active employee who is managing a team. Transfer the team and try again.");
-        }
         _status = Status.Terminated;
-        Events.AddEvent(EmployeeEvents.StatusChanged);
+        Events.AddEvent(new StatusChangedEvent(Id, Status.Active, Status.Terminated));
     }
 
     public void AssignDirectReport(EmployeeInfo directReport) {
@@ -112,7 +109,7 @@ public class Employee
             throw new DomainException("This employee is already a direct report.");
         }
         _directReports.Add(directReport);
-        //Events.AddEvent(EmployeeEvents.DirectReportAdded);
+        Events.AddEvent(new ReportStructureChangedEvent(Id, directReport.Id));
     }
 
     public void DeassignDirectReport(EmployeeInfo directReport) {
@@ -121,6 +118,6 @@ public class Employee
             throw new DomainException("This employee is not a direct report.");
         }
         _directReports.Remove(directReport);
-        //Events.AddEvent(EmployeeEvents.DirectReportRemoved);
+        Events.AddEvent(new ReportStructureChangedEvent(Id, directReport.Id));
     }
 }

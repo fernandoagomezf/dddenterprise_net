@@ -2,7 +2,7 @@ using System;
 
 namespace VantagePoint.Domain.Common;
 
-public sealed record DomainEvent
+public record DomainEvent
     : ValueObject {
     public string Context { get; init; }
     public string Code { get; init; }
