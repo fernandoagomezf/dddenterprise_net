@@ -15,13 +15,13 @@ public class AddressTests {
         var country = "Country";
 
         // Act
-        var address = new Address {
-            Street = street,
-            City = city,
-            State = state,
-            PostalCode = postalCode,
-            Country = country
-        };
+        var address = new Address(
+            street,
+            city,
+            state,
+            postalCode,
+            country
+        );
 
         // Assert
         Assert.Equal(street, address.Street);
@@ -34,20 +34,20 @@ public class AddressTests {
     [Fact]
     public void Equality_TwoAddressesWithSameValues_AreEqual() {
         // Arrange
-        var a1 = new Address {
-            Street = "123 Main St",
-            City = "Metropolis",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country"
-        };
-        var a2 = new Address {
-            Street = "123 Main St",
-            City = "Metropolis",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country"
-        };
+        var a1 = new Address(
+            "123 Main St",
+            "Metropolis",
+            "State",
+            "12345",
+            "Country"
+        );
+        var a2 = new Address(
+            "123 Main St",
+            "Metropolis",
+            "State",
+            "12345",
+            "Country"
+        );
 
         // Act & Assert
         Assert.Equal(a1, a2);
@@ -57,13 +57,13 @@ public class AddressTests {
     [Fact]
     public void WithExpression_ProducesNewInstance_WithModifiedValue() {
         // Arrange
-        var original = new Address {
-            Street = "123 Main St",
-            City = "Metropolis",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country"
-        };
+        var original = new Address(
+            "123 Main St",
+            "Metropolis",
+            "State",
+            "12345",
+            "Country"
+        );
 
         // Act
         var modified = original with { PostalCode = "99999" };
@@ -82,13 +82,13 @@ public class AddressTests {
     [Fact]
     public void Deconstruct_ReturnsComponentValues() {
         // Arrange
-        var address = new Address {
-            Street = "123 Main St",
-            City = "Metropolis",
-            State = "State",
-            PostalCode = "12345",
-            Country = "Country"
-        };
+        var address = new Address(
+            "123 Main St",
+            "Metropolis",
+            "State",
+            "12345",
+            "Country"
+        );
 
         // Act
         var (street, city, state, postalCode, country) = address;
