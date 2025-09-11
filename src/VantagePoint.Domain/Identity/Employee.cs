@@ -106,8 +106,9 @@ public sealed class Employee
 
     public void Terminate() {
         EnsureNotTerminated();
+        var oldStatus = _status;
         _status = Status.Terminated;
-        Events.Add(new StatusChangedEvent(Id, Status.Active, Status.Terminated));
+        Events.Add(new StatusChangedEvent(Id, oldStatus, Status.Terminated));
     }
 
     public void AssignDirectReport(EmployeeInfo directReport) {
