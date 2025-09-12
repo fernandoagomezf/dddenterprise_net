@@ -1,5 +1,5 @@
 
-namespace VantagePoint.Domain.Identity;
+namespace VantagePoint.Domain.Organization;
 
 public enum Status {
     Active,

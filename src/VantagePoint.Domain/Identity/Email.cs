@@ -2,7 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using VantagePoint.Domain.Common;
 
-namespace VantagePoint.Domain.Identity;
+namespace VantagePoint.Domain.Organization;
 
 public sealed record Email
     : ValueObject {

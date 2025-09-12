@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using VantagePoint.Domain.Common;
 
-namespace VantagePoint.Domain.Identity;
+namespace VantagePoint.Domain.Organization;
 
 public class EmployeeMapCollection
     : ValueObjectCollection<EmployeeMap> {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using VantagePoint.Domain.Common;
 
-namespace VantagePoint.Domain.Identity;
+namespace VantagePoint.Domain.Organization;
 
 public class EmployeeCollection
     : EntityCollection<Employee> {
