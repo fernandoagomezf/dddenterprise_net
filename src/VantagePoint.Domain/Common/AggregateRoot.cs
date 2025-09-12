@@ -13,4 +13,9 @@ public abstract class AggregateRoot
     }
 
     protected DomainEventCollection Events => _events;
+
+    protected void HandleAggregateEvents(DomainEvent domainEvent) {
+        OnDomainEventOccurred(domainEvent);
+        Events.Add(domainEvent);
+    }
 }

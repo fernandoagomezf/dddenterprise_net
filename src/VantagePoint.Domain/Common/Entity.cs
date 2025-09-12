@@ -32,5 +32,11 @@ public abstract class Entity {
     public override int GetHashCode() {
         return _id.GetHashCode();
     }
+
+    public event DomainEventAction? DomainEventOccurred;
+
+    protected void OnDomainEventOccurred(DomainEvent domainEvent) {
+        DomainEventOccurred?.Invoke(domainEvent);
+    }
 }
 

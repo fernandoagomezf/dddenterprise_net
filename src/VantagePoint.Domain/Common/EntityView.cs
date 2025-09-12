@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace VantagePoint.Domain.Common;
 
-public class Entities<T>
+public class EntityView<T>
     : IEnumerable<T>, IReadOnlyCollection<T> where T : Entity {
     private readonly EntityCollection<T> _items;
 
-    public Entities(EntityCollection<T> entities) {
+    public EntityView(EntityCollection<T> entities) {
         ArgumentNullException.ThrowIfNull(entities);
         _items = entities;
     }
