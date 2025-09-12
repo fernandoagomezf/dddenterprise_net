@@ -3,9 +3,9 @@ using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
-public class Employees
-    : Entities<Employee> {
-    public Employees(EmployeeCollection collection)
+public class EmployeeView
+    : EntityView<Employee> {
+    public EmployeeView(EmployeeCollection collection)
         : base(collection) {
     }
 }

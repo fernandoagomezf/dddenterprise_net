@@ -6,34 +6,34 @@ namespace VantagePoint.Domain.Identity;
 public class OrganizationUnit
     : AggregateRoot {
     private readonly string _name;
-    private readonly Employee _manager;
+    private readonly Employee _topManager;
     private readonly EmployeeCollection _employees;
 
-    public OrganizationUnit(Employee manager) {
-        ArgumentNullException.ThrowIfNull(manager);
-        if (manager.Status == Status.Active) {
-            throw new DomainException("Only active emplyoees can be assigne to a organization unit.");
+    public OrganizationUnit(Employee topManager, string name) {
+        ArgumentNullException.ThrowIfNull(topManager);
+        ArgumentNullException.ThrowIfNull(name);
+        if (topManager.Status == Status.Active) {
+            throw new DomainException("Only active employees can be assigned to a organization unit.");
         }
-        _manager = manager;
+        if (string.IsNullOrWhiteSpace(name)) {
+            throw new DomainException("Organization unit must have a valid name.");
+        }
+        _topManager = topManager;
+        _employees = new();
+        _name = name;
     }
 
-    public Employee Manager => _manager;
-
-    public Employees Employees => new EmployeeCollection(_employees);
+    public string Name => _name;
+    public Employee TopManager => _topManager;
+    public EmployeeView Employees => new EmployeeView(_employees);
 
     public Employee Create(PersonName name, DateTime birthDate) {
         ArgumentNullException.ThrowIfNull(name);
         if (birthDate.AddYears(18) < DateTime.Now) {
-            throw new DomainException("Can only create employees that are at least 18 years old.")
+            throw new DomainException("Can only create employees that are at least 18 years old.");
         }
-        var empoyee = new Employee(name, birthDate);
-        Enroll(employee);
+        var employee = new Employee(this, name, birthDate);
+        employee.DomainEventOccurred += HandleAggregateEvents;
         return employee;
     }
-
-    public void Enroll(Employee employee) {
-
-    }
-
-    public void 
 }

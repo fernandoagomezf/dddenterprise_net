@@ -5,20 +5,23 @@ namespace VantagePoint.Domain.Identity;
 
 public sealed record StatusChangedEvent
     : DomainEvent {
-    public Identifier EmployeeId { get; init; }
+    public Identifier OrganizationUnit { get; init; }
+    public Identifier Employee { get; init; }
     public Status OldStatus { get; init; }
     public Status NewStatus { get; init; }
 
-    public StatusChangedEvent(Identifier id, Status oldStatus, Status newStatus)
+    public StatusChangedEvent(Identifier organizationUnit, Identifier employee, Status oldStatus, Status newStatus)
         : base("Identity", "Employee.StatusChanged") {
-        ArgumentNullException.ThrowIfNull(id);
-        EmployeeId = id;
+        ArgumentNullException.ThrowIfNull(employee);
+        OrganizationUnit = organizationUnit;
+        Employee = employee;
         OldStatus = oldStatus;
         NewStatus = newStatus;
     }
 
-    public void Deconstruct(out Identifier employeeId, out Status oldStatus, out Status newStatus) {
-        employeeId = EmployeeId;
+    public void Deconstruct(out Identifier organizationUnit, out Identifier employee, out Status oldStatus, out Status newStatus) {
+        organizationUnit = OrganizationUnit;
+        employee = Employee;
         oldStatus = OldStatus;
         newStatus = NewStatus;
     }
