@@ -10,6 +10,7 @@ public sealed class OrganizationUnit
     private readonly Employee _topManager;
     private readonly EmployeeCollection _employees;
     private readonly EmployeeMapCollection _maps;
+    private readonly IEmployeeTransferPolicy _transferPolicy;
 
     public OrganizationUnit(Employee topManager, string name) {
         ArgumentNullException.ThrowIfNull(topManager);
@@ -24,6 +25,7 @@ public sealed class OrganizationUnit
         _name = name;
         _employees = new();
         _maps = new(this);
+        _transferPolicy = new PreventTransferIfHasDirectReportsPolicy();
     }
 
     public string Name => _name;
@@ -51,6 +53,12 @@ public sealed class OrganizationUnit
     private void EnsureActive(Employee employee) {
         if (employee.Status != Status.Active) {
             throw new DomainException("Employee must be active to perform this operation.");
+        }
+    }
+
+    private void EnsureNotTopManager(Employee employee) {
+        if (employee.Id == _topManager.Id) {
+            throw new DomainException("The top manager cannot be removed from the organization unit.");
         }
     }
 
@@ -132,5 +140,40 @@ public sealed class OrganizationUnit
         HandleAggregateEvents(new StructureChangedEvent(Id, manager.Id, report.Id));
     }
 
+    public void RemoveEmployee(Employee employee) {
+        ArgumentNullException.ThrowIfNull(employee);
+        EnsureInOrganizationUnit(employee);
+        EnsureActive(employee);
+        EnsureNotTopManager(employee);
+        _transferPolicy.EnsureCanRemove(employee);
 
+        var map = _maps.Find(employee);
+        if (map is not null) {
+            _maps.Remove(map);
+        }
+        _employees.Remove(employee);
+
+        HandleAggregateEvents(new OrganizationChangedEvent(Id));
+    }
+
+    public void AdoptEmployee(Employee employee) {
+        ArgumentNullException.ThrowIfNull(employee);
+        EnsureActive(employee);
+        EnsureNotInOrganizationUnit(employee);
+        _transferPolicy.EnsureCanTransfer(employee);
+
+        employee.ReassignTo(this);
+        _employees.Add(employee);
+
+        HandleAggregateEvents(new OrganizationChangedEvent(Id));
+    }
+
+    /// <summary>
+    /// Returns true when the provided employee is a manager of at least one direct report
+    /// within this organization unit.
+    /// </summary>
+    public bool HasDirectReports(Employee employee) {
+        ArgumentNullException.ThrowIfNull(employee);
+        return _maps.Any(m => m.Manager == employee.Id);
+    }
 }

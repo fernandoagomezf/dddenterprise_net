@@ -117,4 +117,13 @@ public sealed class Employee
         var team = OrganizationUnit.GetTeamFor(this);
         return team;
     }
+
+    internal void ReassignTo(OrganizationUnit newUnit) {
+        ArgumentNullException.ThrowIfNull(newUnit);
+        if (OrganizationUnit.Id != newUnit.Id) {
+            _organizationUnit = newUnit;
+
+            OnDomainEventOccurred(new OrganizationChangedEvent(newUnit.Id));
+        }
+    }
 }
