@@ -7,22 +7,17 @@ namespace VantagePoint.Domain.Common;
 
 public class EntityCollection<T>
     : IEnumerable<T>, ICollection<T> where T : Entity {
-    private readonly AggregateRoot _root;
     private readonly Dictionary<Identifier, T> _items;
 
-    public EntityCollection(AggregateRoot root) {
-        ArgumentNullException.ThrowIfNull(root);
-        _root = root;
+    public EntityCollection() {
         _items = new();
     }
 
-    public EntityCollection(AggregateRoot root, IEnumerable<T> items)
-        : this(root) {
+    public EntityCollection(IEnumerable<T> items) {
         ArgumentNullException.ThrowIfNull(items);
         _items = items.ToDictionary(x => x.Id);
     }
 
-    public AggregateRoot Root => _root;
     public int Count => _items.Count;
     public bool IsReadOnly => false;
 

@@ -4,12 +4,12 @@ using VantagePoint.Domain.Common;
 namespace VantagePoint.Domain.Identity;
 
 public class EmployeeCollection
-    : EntityCollection<EmployeeInfo> {
-    public EmployeeCollection(Employee employee)
-        : base(employee) {
+    : EntityCollection<Employee> {
+    public EmployeeCollection()
+        : base() {
     }
 
-    public EmployeeCollection(Employee employee, IEnumerable<EmployeeInfo> items)
-        : base(employee, items) {
+    public EmployeeCollection(IEnumerable<Employee> items)
+        : base(items) {
     }
 }

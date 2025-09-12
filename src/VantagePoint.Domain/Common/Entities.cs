@@ -13,7 +13,6 @@ public class Entities<T>
         _items = entities;
     }
 
-    public AggregateRoot Root => _items.Root;
     public int Count => _items.Count;
     public bool IsReadOnly => true;
 

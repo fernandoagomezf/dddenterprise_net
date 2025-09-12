@@ -4,7 +4,7 @@ using VantagePoint.Domain.Common;
 namespace VantagePoint.Domain.Identity;
 
 public sealed class Employee
-    : AggregateRoot, IPerson {
+    : Entity, IPerson {
     private PersonName _name;
     private Status _status;
     private PhoneNumber _phoneNumber;
