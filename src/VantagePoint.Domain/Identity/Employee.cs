@@ -111,4 +111,10 @@ public sealed class Employee
         _status = Status.Terminated;
         OnDomainEventOccurred(new StatusChangedEvent(Id, OrganizationUnit.Id, oldStatus, _status));
     }
+
+    public Team GetMyTeam() {
+        EnsureActive();
+        var team = OrganizationUnit.GetTeamFor(this);
+        return team;
+    }
 }
