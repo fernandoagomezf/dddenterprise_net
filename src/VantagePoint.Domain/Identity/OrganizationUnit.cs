@@ -42,6 +42,12 @@ public sealed class OrganizationUnit
         }
     }
 
+    private void EnsureNotInOrganizationUnit(Employee employee) {
+        if (employee.OrganizationUnit.Id == Id) {
+            throw new DomainException("Employee already belongs to the organization unit.");
+        }
+    }
+
     private void EnsureActive(Employee employee) {
         if (employee.Status != Status.Active) {
             throw new DomainException("Employee must be active to perform this operation.");
@@ -125,4 +131,6 @@ public sealed class OrganizationUnit
 
         HandleAggregateEvents(new StructureChangedEvent(Id, manager.Id, report.Id));
     }
+
+
 }
