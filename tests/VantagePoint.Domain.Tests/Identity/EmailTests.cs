@@ -1,8 +1,8 @@
 using System;
-using VantagePoint.Domain.Identity;
+using VantagePoint.Domain.Organization;
 using Xunit;
 
-namespace VantagePoint.Domain.Identity.Tests;
+namespace VantagePoint.Domain.Organization.Tests;
 
 public class EmailTests {
     [Fact]

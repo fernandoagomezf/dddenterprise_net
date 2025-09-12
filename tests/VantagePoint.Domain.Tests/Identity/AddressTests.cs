@@ -1,8 +1,8 @@
 using System;
-using VantagePoint.Domain.Identity;
+using VantagePoint.Domain.Organization;
 using Xunit;
 
-namespace VantagePoint.Domain.Identity.Tests;
+namespace VantagePoint.Domain.Organization.Tests;
 
 public class AddressTests {
     [Fact]
@@ -72,7 +72,7 @@ public class AddressTests {
         Assert.NotSame(original, modified);
         Assert.Equal("99999", modified.PostalCode);
         Assert.Equal("12345", original.PostalCode);
-        // other values remain equal
+
         Assert.Equal(original.Street, modified.Street);
         Assert.Equal(original.City, modified.City);
         Assert.Equal(original.State, modified.State);
