@@ -21,12 +21,12 @@ public class ValueObjectCollection<T>
     IEnumerator IEnumerable.GetEnumerator()
         => _items.GetEnumerator();
 
-    public void Add(T item) {
+    public virtual void Add(T item) {
         ArgumentNullException.ThrowIfNull(item);
         _items.Add(item);
     }
 
-    public bool Remove(T item) {
+    public virtual bool Remove(T item) {
         ArgumentNullException.ThrowIfNull(item);
         return _items.Remove(item);
     }
