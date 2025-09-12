@@ -34,6 +34,9 @@ public class OrganizationUnit
         }
         var employee = new Employee(this, name, birthDate);
         employee.DomainEventOccurred += HandleAggregateEvents;
+        _employees.Add(employee);
+        HandleAggregateEvents(new OrganizationChangedEvent(Id));
+
         return employee;
     }
 }

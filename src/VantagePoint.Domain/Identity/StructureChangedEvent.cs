@@ -3,14 +3,14 @@ using VantagePoint.Domain.Common;
 
 namespace VantagePoint.Domain.Identity;
 
-public sealed record OrganizationStructureChangedEvent
+public sealed record StructureChangedEvent
     : DomainEvent {
     public Identifier OrganizationUnit { get; init; }
     public Identifier Employee { get; init; }
     public Identifier Report { get; init; }
 
-    public OrganizationStructureChangedEvent(Identifier organizationUnit, Identifier employee, Identifier report)
-        : base("Identity", "Employee.OrganizationStructureChanged") {
+    public StructureChangedEvent(Identifier organizationUnit, Identifier employee, Identifier report)
+        : base("Identity", "Employee.StructureChangedEvent") {
         ArgumentNullException.ThrowIfNull(organizationUnit);
         ArgumentNullException.ThrowIfNull(employee);
         ArgumentNullException.ThrowIfNull(report);
