@@ -153,6 +153,41 @@ public class DomainEventTests {
     }
 
     [Fact]
+    public void Deconstruct_ReturnsAllValues() {
+        // Arrange
+        var raised = new DateTime(2023, 1, 1, 12, 0, 0);
+        var evt = new DomainEvent("UserManagement", "UserCreated", raised);
+
+        // Act
+        evt.Deconstruct(out var context, out var code, out var when);
+
+        // Assert
+        Assert.Equal("UserManagement", context);
+        Assert.Equal("UserCreated", code);
+        Assert.Equal(raised, when);
+    }
+
+    [Fact]
+    public void Constructor_WithEmptyCode_ShouldThrowArgumentException() {
+        // Arrange
+        var context = "UserManagement";
+        var code = String.Empty;
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new DomainEvent(context, code));
+    }
+
+    [Fact]
+    public void Constructor_WithWhiteSpaceCode_ShouldThrowArgumentException() {
+        // Arrange
+        var context = "UserManagement";
+        var code = "   ";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new DomainEvent(context, code));
+    }
+
+    [Fact]
     public void Record_WithExpression_ShouldCreateModifiedCopy() {
         // Arrange
         var originalRaised = new DateTime(2023, 1, 1, 12, 0, 0);
